@@ -14,32 +14,32 @@ type ImagesHandler interface {
 	Recognize(w http.ResponseWriter, r *http.Request)
 }
 
-type imagesHandler struct{
- 	uc usecases.ImagesUsecase
+type imagesHandler struct {
+	uc usecases.ImagesUsecase
 }
 
-func NewImagesHandler(u usecases.ImagesUsecase)ImagesHandler{
+func NewImagesHandler(u usecases.ImagesUsecase) ImagesHandler {
 	return &imagesHandler{
 		uc: u,
 	}
 }
 
-func (s *imagesHandler)Recognize(w http.ResponseWriter, r *http.Request) {
-	// Read image
+func (s *imagesHandler) Recognize(w http.ResponseWriter, r *http.Request) {
+
 	imageFile, header, err := r.FormFile("image")
 	defer imageFile.Close()
-	// Will contain filename and extension
+
 	imageName := strings.Split(header.Filename, ".")
 	if err != nil {
 		utils.ResponseError(w, "Could not read image", http.StatusBadRequest)
 		return
 	}
 	imageExt := imageName[len(imageName)-1]
+
 	var imageBuffer bytes.Buffer
-	// Copy image data to a buffer
 	_, err = io.Copy(&imageBuffer, imageFile)
-	if err != nil{
-		utils.ResponseError(w, "Could not run inference", http.StatusInternalServerError)
+	if err != nil {
+		utils.ResponseError(w, "Could not read image", http.StatusBadRequest)
 		return
 	}
 
@@ -50,7 +50,6 @@ func (s *imagesHandler)Recognize(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.ResponseJSON(w, models.ClassifyResult{
-		Labels:   res,
+		Labels: res,
 	})
 }
-

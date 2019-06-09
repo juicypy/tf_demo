@@ -41,7 +41,6 @@ func (s *imagesRepo) Recognize(iBuffer *bytes.Buffer, iExt string) ([]*tf.Tensor
 		return nil, err
 	}
 
-	// Run inference
 	output, err := s.sess.Session.Run(
 		map[tf.Output]*tf.Tensor{
 			s.sess.Graph.Operation(inputOperation).Output(0): tensor,
@@ -60,6 +59,7 @@ func (s *imagesRepo) tensorFromImage(imageBuffer *bytes.Buffer, imageFormat stri
 	if err != nil {
 		return nil, err
 	}
+
 	tsImage, err := s.transformImageGraph(imageFormat)
 	if err != nil {
 		return nil, err
@@ -70,6 +70,7 @@ func (s *imagesRepo) tensorFromImage(imageBuffer *bytes.Buffer, imageFormat stri
 		log.Fatal(err)
 	}
 	defer session.Close()
+
 	normalized, err := session.Run(
 		map[tf.Output]*tf.Tensor{tsImage.Input: tensor},
 		[]tf.Output{tsImage.Output},
@@ -91,7 +92,7 @@ func (s *imagesRepo) transformImageGraph(imageFormat string) (transImage, error)
 
 	scope := op.NewScope()
 	input := op.Placeholder(scope, tf.String)
-	// Decode PNG or JPEG
+
 	var decode tf.Output
 	if imageFormat == pngExt {
 		decode = op.DecodePng(scope, input, op.DecodePngChannels(rgbChannelsCount))

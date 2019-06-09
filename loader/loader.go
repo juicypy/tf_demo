@@ -10,14 +10,13 @@ import (
 	tf "github.com/tensorflow/tensorflow/tensorflow/go"
 )
 
-type Loader struct{
-	ModelPath string
+type Loader struct {
+	ModelPath  string
 	LabelsPath string
 }
 
-func (s *Loader)NewSession()(*models.TFSession, error) {
+func (s *Loader) NewSession() (*models.TFSession, error) {
 
-	// ./tf_model/tensorflow_inception_graph.pb
 	model, err := ioutil.ReadFile(s.ModelPath)
 	if err != nil {
 		return nil, err
@@ -27,8 +26,6 @@ func (s *Loader)NewSession()(*models.TFSession, error) {
 		return nil, err
 	}
 
-	// Load labels
-	// ./tf_model/imagenet_comp_graph_label_strings.txt
 	labelsFile, err := os.Open(s.LabelsPath)
 	if err != nil {
 		return nil, err
@@ -36,7 +33,7 @@ func (s *Loader)NewSession()(*models.TFSession, error) {
 	defer labelsFile.Close()
 
 	scanner := bufio.NewScanner(labelsFile)
-	// Labels are separated by newlines
+
 	var labels []string
 	for scanner.Scan() {
 		labels = append(labels, scanner.Text())
@@ -51,9 +48,9 @@ func (s *Loader)NewSession()(*models.TFSession, error) {
 	}
 
 	sess := &models.TFSession{
-		Graph: graphModel,
+		Graph:   graphModel,
 		Session: sessionModel,
-		Labels: labels,
+		Labels:  labels,
 	}
 
 	return sess, nil
